@@ -74,25 +74,41 @@ def download_latest_spreadsheet(folder_id):
     except Exception as e:
         return None, f"Error saat mengunduh file dari Drive: {e}"
 
+def find_local_excel(keyword):
+    """Mencari file Excel di folder mana pun tanpa peduli huruf besar/kecil."""
+    for root, dirs, files in os.walk("."):
+        # Abaikan folder internal virtual environment
+        if "env" in root or ".git" in root:
+            continue
+        for f in files:
+            if keyword.lower() in f.lower() and f.lower().endswith(('.xlsx', '.xls')):
+                return os.path.join(root, f)
+    return None
+
 def get_matriks_peran_data():
     """Mengambil data Ketua Tim dan menormalkan nama kolom."""
-    df, status = download_latest_spreadsheet(FOLDER_ID_MATRIKS_PERAN)
-    
-    if df is None and os.path.exists("matriks_peran.xlsx"):
+    # 1. Coba cari file lokal di repositori GitHub terlebih dahulu
+    local_file = find_local_excel("matriks")
+    if local_file:
         try:
-            df = pd.read_excel("matriks_peran.xlsx")
-            status = "Menggunakan file cadangan lokal: matriks_peran.xlsx"
-        except Exception:
-            pass
+            df = pd.read_excel(local_file)
+            status = f"Berhasil membaca file lokal: {os.path.basename(local_file)}"
+        except Exception as e:
+            df, status = None, f"Gagal membaca {local_file}: {e}"
+    else:
+        # 2. Jika tidak ada file lokal, coba unduh dari Google Drive
+        df, status = download_latest_spreadsheet(FOLDER_ID_MATRIKS_PERAN)
 
+    # 3. Jika tetap tidak ditemukan, gunakan data bawaan
     if df is None:
-        status_msg = f"Gagal membaca dari Drive ({status}). Menggunakan data contoh default."
+        status_msg = f"File matriks_peran belum ditemukan di repositori ({status})."
         df = pd.DataFrame([
             {"Jabatan": "Ketua Tim Sensus Ekonomi 2026", "Nama": "Muhammad Faza, S.Tr.Stat.", "NIP": "199802162021041001"},
             {"Jabatan": "Ketua Tim Statistik Sosial", "Nama": "John Tri Merjaya, SST., M.Ec.Dev.", "NIP": "198406192007011002"}
         ])
         return df, status_msg
 
+    # Normalisasi nama kolom
     cols_map = {}
     for col in df.columns:
         c_clean = str(col).strip().lower()
