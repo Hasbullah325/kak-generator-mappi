@@ -74,59 +74,60 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 # ==============================================================================
 # TAB 1: HEADER & BAS BERJENJANG (CASCADING DROPDOWN)
 # ==============================================================================
+
 with tab1:
     st.subheader("Judul Dokumen")
     nama_kegiatan = st.text_input("Nama Kegiatan (Otomatis Huruf Kapital):", value="Pelatihan Petugas Pendataan Lapangan Sensus Ekonomi 2026")
     
     st.markdown("---")
     st.subheader("Klasifikasi Bagan Akun Standar (BAS)")
-    if "Berhasil" in status_pok:
-        st.success(f"✅ {status_pok}")
+    
+    # Status sinkronisasi Google Drive
+    if "Berhasil" in str(status_pok):
+        st.success(f"☁️ {status_pok}")
     else:
-        st.info(f"ℹ️ Status POK: {status_pok}")
+        st.info(f"ℹ️ {status_pok}")
 
     col_bas1, col_bas2 = st.columns(2)
     
     with col_bas1:
-        # Level 1: Program
-        list_prog = df_pok["program"].dropna().astype(str).unique().tolist() if "program" in df_pok.columns else ["-"]
+        list_prog = [str(x) for x in df_pok["program"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"] if "program" in df_pok.columns else []
+        if not list_prog: list_prog = ["-"]
         program = st.selectbox("1. Program:", list_prog)
-        df_lvl1 = df_pok[df_pok["program"].astype(str) == program] if "program" in df_pok.columns else df_pok
+        df_lvl1 = df_pok[df_pok["program"].astype(str) == program] if ("program" in df_pok.columns and not df_pok.empty) else df_pok
 
-        # Level 2: Kegiatan
-        list_keg = df_lvl1["kegiatan"].dropna().astype(str).unique().tolist() if "kegiatan" in df_lvl1.columns else ["-"]
+        list_keg = [str(x) for x in df_lvl1["kegiatan"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"] if "kegiatan" in df_lvl1.columns else []
+        if not list_keg: list_keg = ["-"]
         kegiatan = st.selectbox("2. Kegiatan:", list_keg)
-        df_lvl2 = df_lvl1[df_lvl1["kegiatan"].astype(str) == kegiatan] if "kegiatan" in df_lvl1.columns else df_lvl1
+        df_lvl2 = df_lvl1[df_lvl1["kegiatan"].astype(str) == kegiatan] if ("kegiatan" in df_lvl1.columns and not df_lvl1.empty) else df_lvl1
 
-        # Level 3: Klasifikasi RO (KRO)
-        list_kro = df_lvl2["kro"].dropna().astype(str).unique().tolist() if "kro" in df_lvl2.columns else ["-"]
+        list_kro = [str(x) for x in df_lvl2["kro"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"] if "kro" in df_lvl2.columns else []
+        if not list_kro: list_kro = ["-"]
         kro = st.selectbox("3. Klasifikasi RO (KRO):", list_kro)
-        df_lvl3 = df_lvl2[df_lvl2["kro"].astype(str) == kro] if "kro" in df_lvl2.columns else df_lvl2
+        df_lvl3 = df_lvl2[df_lvl2["kro"].astype(str) == kro] if ("kro" in df_lvl2.columns and not df_lvl2.empty) else df_lvl2
 
     with col_bas2:
-        # Level 4: Rincian Output (RO)
-        list_ro = df_lvl3["ro"].dropna().astype(str).unique().tolist() if "ro" in df_lvl3.columns else ["-"]
+        list_ro = [str(x) for x in df_lvl3["ro"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"] if "ro" in df_lvl3.columns else []
+        if not list_ro: list_ro = ["-"]
         ro = st.selectbox("4. Rincian Output (RO):", list_ro)
-        df_lvl4 = df_lvl3[df_lvl3["ro"].astype(str) == ro] if "ro" in df_lvl3.columns else df_lvl3
+        df_lvl4 = df_lvl3[df_lvl3["ro"].astype(str) == ro] if ("ro" in df_lvl3.columns and not df_lvl3.empty) else df_lvl3
 
-        # Level 5: Komponen
-        list_komp = df_lvl4["komponen"].dropna().astype(str).unique().tolist() if "komponen" in df_lvl4.columns else ["-"]
+        list_komp = [str(x) for x in df_lvl4["komponen"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"] if "komponen" in df_lvl4.columns else []
+        if not list_komp: list_komp = ["-"]
         komponen = st.selectbox("5. Komponen:", list_komp)
-        df_lvl5 = df_lvl4[df_lvl4["komponen"].astype(str) == komponen] if "komponen" in df_lvl4.columns else df_lvl4
+        df_lvl5 = df_lvl4[df_lvl4["komponen"].astype(str) == komponen] if ("komponen" in df_lvl4.columns and not df_lvl4.empty) else df_lvl4
 
-        # Level 6: Sub Komponen
-        list_subkomp = df_lvl5["sub_komponen"].dropna().astype(str).unique().tolist() if "sub_komponen" in df_lvl5.columns else ["-"]
+        list_subkomp = [str(x) for x in df_lvl5["sub_komponen"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"] if "sub_komponen" in df_lvl5.columns else []
+        if not list_subkomp: list_subkomp = ["-"]
         sub_komponen = st.selectbox("6. Sub Komponen:", list_subkomp)
 
-    # Filter akhir data POK sesuai Sub Komponen terpilih
-    if "sub_komponen" in df_lvl5.columns:
+    if "sub_komponen" in df_lvl5.columns and not df_lvl5.empty:
         pok_final = df_lvl5[df_lvl5["sub_komponen"].astype(str) == sub_komponen]
     else:
         pok_final = df_lvl5
 
-    # Ambil SEMUA Akun dan SEMUA Detil di bawah Sub Komponen ini
-    semua_akun = sorted([str(x) for x in pok_final["akun"].dropna().unique().tolist() if str(x) != "-"]) if "akun" in pok_final.columns else []
-    semua_detil = sorted([str(x) for x in pok_final["detil"].dropna().unique().tolist() if str(x) != "-"]) if "detil" in pok_final.columns else []
+    semua_akun = sorted([str(x) for x in pok_final["akun"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"]) if "akun" in pok_final.columns else []
+    semua_detil = sorted([str(x) for x in pok_final["detil"].dropna().unique().tolist() if str(x).strip() and str(x) != "-"]) if "detil" in pok_final.columns else []
     
     teks_akun_lengkap = "\n".join(semua_akun) if semua_akun else "-"
     teks_detil_lengkap = "\n".join(semua_detil) if semua_detil else "-"
