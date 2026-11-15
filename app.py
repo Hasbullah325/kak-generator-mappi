@@ -10,14 +10,12 @@ st.set_page_config(page_title="Generator KAK - BPS Mappi", layout="wide")
 st.title("🏛️ Aplikasi Generator KAK BPS Kabupaten Mappi")
 
 # --- KONFIGURASI SIDEBAR ---
+# --- SIDEBAR INFORMASI INSTANSI (AMAN TANPA KUNCI API) ---
 with st.sidebar:
-    st.header("⚙️ Konfigurasi Sistem")
-    api_key_input = st.text_input("Gemini API Key:", value=os.getenv("GEMINI_API_KEY", ""), type="password")
-    if api_key_input:
-        os.environ["GEMINI_API_KEY"] = api_key_input
-    st.caption("Kunci API diperlukan untuk menjalankan fitur AI perangkum dokumen Juknis.")
+    st.header("🏛️ BPS Kab. Mappi")
+    st.info("Sistem Otomasi Penyusunan Dokumen Kerangka Acuan Kerja (KAK).")
     st.markdown("---")
-    st.caption("BPS Kabupaten Mappi © 2026")
+    st.caption("Versi Resmi © 2026 Badan Pusat Statistik Kabupaten Mappi")
 
 # --- AMBIL MASTER DATA (POK & MATRIKS PERAN) ---
 df_pok, status_pok = get_pok_data()
